@@ -7,21 +7,26 @@ const Auth = ({ onAuth }) => {
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
 
+    const API_URL = 'https://yuya-ai.onrender.com/api'; // L'URL de ton serveur
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        
+
         try {
+            let response;
+            let data;
+            
             if (isLogin) {
-                const response = await fetch('http://localhost:5000/api/login', {
+                response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
                 
-                const data = await response.json();
+                data = await response.json();
                 
                 if (response.ok) {
                     onAuth(email);
@@ -30,15 +35,15 @@ const Auth = ({ onAuth }) => {
                 }
             } else {
                 if (!showVerification) {
-                    const response = await fetch('http://localhost:5000/api/register', {
+                    response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify({ email, password })
                     });
-                    
-                    const data = await response.json();
-                    
+
+                    data = await response.json();
+
                     if (response.ok) {
                         setShowVerification(true);
                         // Si un code de test est fourni (mode développement), on l'affiche
@@ -49,15 +54,15 @@ const Auth = ({ onAuth }) => {
                         setError(data.error || 'Erreur d\'inscription');
                     }
                 } else {
-                    const response = await fetch('http://localhost:5000/api/verify', {
+                    response = await fetch(`${API_URL}/verify`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
                         body: JSON.stringify({ email, code: verificationCode })
                     });
-                    
-                    const data = await response.json();
-                    
+
+                    data = await response.json();
+
                     if (response.ok) {
                         setIsLogin(true);
                         setShowVerification(false);
