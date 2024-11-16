@@ -11,7 +11,8 @@ const Auth = ({ onAuth }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'http://localhost:5000';  // Assure-toi que l'URL est correcte
+  const API_URL = 'https://yuya-ai.onrender.com';  // URL de ton serveur en production
+
 
   const saveUserData = async (userData) => {
     try {
