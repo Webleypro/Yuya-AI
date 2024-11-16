@@ -11,14 +11,13 @@ const Auth = ({ onAuth }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'https://yuya-ai.onrender.com/api';
+  const API_URL = 'http://localhost:5000';  // Assure-toi que l'URL est correcte
 
   const saveUserData = async (userData) => {
     try {
       const response = await fetch(`${API_URL}/save-user`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(userData)
       });
       return response.ok;
@@ -39,7 +38,6 @@ const Auth = ({ onAuth }) => {
         const response = await fetch(`${API_URL}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ email, password })
         });
         
@@ -57,32 +55,21 @@ const Auth = ({ onAuth }) => {
           const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({ email, password })
           });
 
           const data = await response.json();
 
           if (response.ok) {
-            // Génération d'un code de vérification unique pour l'utilisateur
-            const verificationCode = Math.floor(1000 + Math.random() * 9000); // Code à 4 chiffres
-            await fetch(`${API_URL}/send-verification-code`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, verificationCode })
-            });
-
             setShowVerification(true);
             setSuccess('Code de vérification envoyé par email!');
           } else {
             setError(data.error || 'Erreur lors de l\'inscription');
           }
         } else {
-          // Vérification du code de l'utilisateur
           const response = await fetch(`${API_URL}/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({ 
               email,
               verificationCode,
