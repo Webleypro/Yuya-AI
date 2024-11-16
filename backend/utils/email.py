@@ -64,12 +64,21 @@ const Auth = ({ onAuth }) => {
           const data = await response.json();
 
           if (response.ok) {
+            // Génération d'un code de vérification unique pour l'utilisateur
+            const verificationCode = Math.floor(1000 + Math.random() * 9000); // Code à 4 chiffres
+            await fetch(`${API_URL}/send-verification-code`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, verificationCode })
+            });
+
             setShowVerification(true);
             setSuccess('Code de vérification envoyé par email!');
           } else {
             setError(data.error || 'Erreur lors de l\'inscription');
           }
         } else {
+          // Vérification du code de l'utilisateur
           const response = await fetch(`${API_URL}/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
