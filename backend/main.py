@@ -14,6 +14,7 @@ CORS(app, supports_credentials=True)
 brain = YuyaBrain()
 USERS_FILE = 'users.json'
 
+# Fonction pour charger les utilisateurs depuis le fichier JSON
 def load_users():
     try:
         if os.path.exists(USERS_FILE):
@@ -23,6 +24,7 @@ def load_users():
         print(f"Erreur lors du chargement des utilisateurs : {e}")
     return {}
 
+# Fonction pour sauvegarder les utilisateurs dans le fichier JSON
 def save_users(users):
     try:
         os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
@@ -31,6 +33,7 @@ def save_users(users):
     except Exception as e:
         print(f"Erreur lors de la sauvegarde des utilisateurs : {e}")
 
+# Route pour l'inscription
 @app.route('/api/register', methods=['POST'])
 def register():
     try:
@@ -76,6 +79,7 @@ def register():
         print(f"Erreur lors de l'inscription : {e}")
         return jsonify({'error': 'Erreur lors de l\'inscription'}), 500
 
+# Route pour la vérification de l'email
 @app.route('/api/verify', methods=['POST'])
 def verify():
     try:
@@ -107,6 +111,7 @@ def verify():
         print(f"Erreur lors de la vérification : {e}")
         return jsonify({'error': 'Erreur lors de la vérification'}), 500
 
+# Route pour la connexion
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
