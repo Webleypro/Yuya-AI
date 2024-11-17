@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Auth = ({ onAuth }) => {
     const [isLogin, setIsLogin] = React.useState(true);
     const [email, setEmail] = React.useState('');
@@ -7,7 +9,7 @@ const Auth = ({ onAuth }) => {
     const [error, setError] = React.useState('');
     const [loading, setLoading] = React.useState(false);
 
-    const API_URL = 'https://yuya-ai.onrender.com/api'; // L'URL de ton serveur
+    const API_URL = 'https://yuya-ai.onrender.com/api'; // URL de ton backend
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,54 +19,57 @@ const Auth = ({ onAuth }) => {
         try {
             let response;
             let data;
-            
+
             if (isLogin) {
+                // Connexion
                 response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password }),
                 });
-                
+
                 data = await response.json();
-                
+
                 if (response.ok) {
-                    onAuth(email);
+                    onAuth(email); // Redirige ou met à jour l'état après connexion
                 } else {
                     setError(data.error || 'Erreur de connexion');
                 }
             } else {
                 if (!showVerification) {
+                    // Inscription
                     response = await fetch(`${API_URL}/register`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ email, password })
+                        body: JSON.stringify({ email, password }),
                     });
 
                     data = await response.json();
 
                     if (response.ok) {
                         setShowVerification(true);
-                        // Si un code de test est fourni (mode développement), on l'affiche
+                        alert('Un code de vérification a été envoyé à votre email.');
                         if (data.test_code) {
-                            alert(`Code de test: ${data.test_code}`);
+                            console.log(`Code de test: ${data.test_code}`);
                         }
                     } else {
                         setError(data.error || 'Erreur d\'inscription');
                     }
                 } else {
+                    // Vérification du code
                     response = await fetch(`${API_URL}/verify`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ email, code: verificationCode })
+                        body: JSON.stringify({ email, code: verificationCode }),
                     });
 
                     data = await response.json();
 
                     if (response.ok) {
-                        setIsLogin(true);
+                        setIsLogin(true); // Passe en mode connexion
                         setShowVerification(false);
                         alert('Compte vérifié avec succès ! Vous pouvez maintenant vous connecter.');
                     } else {
@@ -83,13 +88,13 @@ const Auth = ({ onAuth }) => {
     return (
         <div className="auth-container">
             <h2>{isLogin ? 'Connexion' : 'Inscription'}</h2>
-            
+
             {error && (
                 <div className="error-message">
                     {error}
                 </div>
             )}
-            
+
             <form onSubmit={handleSubmit}>
                 <input
                     type="email"
@@ -100,7 +105,7 @@ const Auth = ({ onAuth }) => {
                     disabled={loading}
                     required
                 />
-                
+
                 {!showVerification && (
                     <input
                         type="password"
@@ -113,7 +118,7 @@ const Auth = ({ onAuth }) => {
                         minLength="6"
                     />
                 )}
-                
+
                 {showVerification && (
                     <input
                         type="text"
@@ -128,9 +133,9 @@ const Auth = ({ onAuth }) => {
                         maxLength="6"
                     />
                 )}
-                
-                <button 
-                    type="submit" 
+
+                <button
+                    type="submit"
                     className="button"
                     disabled={loading}
                 >
@@ -141,7 +146,7 @@ const Auth = ({ onAuth }) => {
                     )}
                 </button>
             </form>
-            
+
             <button
                 className="button secondary"
                 onClick={() => {
@@ -156,3 +161,5 @@ const Auth = ({ onAuth }) => {
         </div>
     );
 };
+
+export default Auth;
