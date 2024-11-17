@@ -13,7 +13,6 @@ const Auth = ({ onAuth }) => {
 
   const API_URL = 'https://yuya-ai.onrender.com';  // URL de ton serveur en production
 
-
   const saveUserData = async (userData) => {
     try {
       const response = await fetch(`${API_URL}/save-user`, {
@@ -46,7 +45,7 @@ const Auth = ({ onAuth }) => {
         
         if (response.ok) {
           setSuccess('Connexion réussie!');
-          await saveUserData({ email, password });
+          await saveUserData({ email, password });  // Sauvegarde les données de l'utilisateur
           onAuth(email);
         } else {
           setError(data.error || 'Identifiants incorrects');
@@ -74,7 +73,7 @@ const Auth = ({ onAuth }) => {
             body: JSON.stringify({ 
               email,
               verificationCode,
-              password // On envoie aussi le mot de passe pour la sauvegarde
+              password // Envoie aussi le mot de passe pour la sauvegarde
             })
           });
 
@@ -145,17 +144,17 @@ const Auth = ({ onAuth }) => {
           {showVerification && (
             <input
               type="text"
-              placeholder="Code de vérification (4 chiffres)"
+              placeholder="Code de vérification (6 chiffres)"
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
               value={verificationCode}
               onChange={(e) => {
                 const value = e.target.value.replace(/[^0-9]/g, '');
-                if (value.length <= 4) setVerificationCode(value);
+                if (value.length <= 6) setVerificationCode(value);
               }}
               disabled={loading}
               required
-              pattern="[0-9]{4}"
-              maxLength="4"
+              pattern="[0-9]{6}"
+              maxLength="6"
             />
           )}
         </div>
