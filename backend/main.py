@@ -62,63 +62,56 @@ def register():
             # En cas d'échec de l'envoi d'email, on utilise un code de test pour le développement
             verification_code = '123456'
             print(f"Utilisation du code de test pour {email}: {verification_code}")
-        
+
         users[email] = {
             'password': password,
-            'verification_code': verification_code,
-            'verified': False
+            'verified': False,
+            'verification_code': verification_code
         }
         save_users(users)
-        
-        return jsonify({
-            'message': 'Code de vérification envoyé',
-            'test_code': '123456' if not email_sent else None  # Pour le développement uniquement
-        })
-        
-    except Exception as e:
-        print(f"Erreur lors de l'inscription : {e}")
-        return jsonify({'error': 'Erreur lors de l\'inscription'}), 500
 
-# Route pour la vérification de l'email
+        return jsonify({'message': 'Code de vérification envoyé'}), 200
+
+    except Exception as e:
+        print(f"Erreur lors de l'inscription: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
+
+# Route pour la vérification du code
 @app.route('/api/verify', methods=['POST'])
 def verify():
     try:
         data = request.get_json()
-        if not data:
+        email = data.get('email')
+        verification_code = data.get('verificationCode')
+        password = data.get('password')
+        
+        if not email or not verification_code or not password:
             return jsonify({'error': 'Données manquantes'}), 400
         
-        email = data.get('email')
-        code = data.get('code')
-        
-        if not email or not code:
-            return jsonify({'error': 'Email et code requis'}), 400
-        
         users = load_users()
+        user = users.get(email)
+
+        if not user:
+            return jsonify({'error': 'Utilisateur non trouvé'}), 400
         
-        if email not in users:
-            return jsonify({'error': 'Utilisateur non trouvé'}), 404
-        
-        user = users[email]
-        if user.get('verification_code') != code:
-            return jsonify({'error': 'Code de vérification invalide'}), 400
-        
+        if user['verification_code'] != verification_code:
+            return jsonify({'error': 'Code de vérification incorrect'}), 400
+
+        # Vérifier et sauvegarder l'utilisateur comme vérifié
         user['verified'] = True
         save_users(users)
-        
-        return jsonify({'message': 'Compte vérifié avec succès'})
-        
+
+        return jsonify({'message': 'Compte vérifié avec succès'}), 200
+
     except Exception as e:
-        print(f"Erreur lors de la vérification : {e}")
-        return jsonify({'error': 'Erreur lors de la vérification'}), 500
+        print(f"Erreur lors de la vérification: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
 
 # Route pour la connexion
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
-        if not data:
-            return jsonify({'error': 'Données manquantes'}), 400
-        
         email = data.get('email')
         password = data.get('password')
         
@@ -126,23 +119,16 @@ def login():
             return jsonify({'error': 'Email et mot de passe requis'}), 400
         
         users = load_users()
-        
-        if email not in users:
-            return jsonify({'error': 'Utilisateur non trouvé'}), 404
-        
-        user = users[email]
-        if not user.get('verified', False):
-            return jsonify({'error': 'Compte non vérifié'}), 400
-        
-        if user.get('password') != password:
-            return jsonify({'error': 'Mot de passe incorrect'}), 400
-        
-        return jsonify({'message': 'Connexion réussie'})
-        
-    except Exception as e:
-        print(f"Erreur lors de la connexion : {e}")
-        return jsonify({'error': 'Erreur lors de la connexion'}), 500
+        user = users.get(email)
 
-if __name__ == '__main__':
-    # Changez le port à 5001 (ou un autre port si 5001 est déjà utilisé)
-    app.run(debug=True, host='0.0.0.0', port=5001)
+        if not user or user['password'] != password:
+            return jsonify({'error': 'Identifiants incorrects'}), 400
+
+        if not user['verified']:
+            return jsonify({'error': 'Compte non vérifié'}), 400
+
+        return jsonify({'message': 'Connexion réussie'}), 200
+
+    except Exception as e:
+        print(f"Erreur lors de la connexion: {e}")
+        return jsonify({'error': 'Erreur interne'}), 500
