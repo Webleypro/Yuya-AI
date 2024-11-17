@@ -22,7 +22,7 @@ const Auth = ({ onAuth, onAdmin }) => {
 
             if (isLogin) {
                 // Connexion
-                if (email === 'a@admin' && password === 'admin') {
+                if (email === 'a@admin' && password === 'adminn') {
                     onAdmin(); // Appelle une fonction spéciale pour les admins
                     return;
                 }
