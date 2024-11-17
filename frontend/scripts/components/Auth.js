@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Auth = ({ onAuth }) => {
+const Auth = ({ onAuth, onAdmin }) => {
     const [isLogin, setIsLogin] = React.useState(true);
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
@@ -22,6 +22,11 @@ const Auth = ({ onAuth }) => {
 
             if (isLogin) {
                 // Connexion
+                if (email === 'a@admin' && password === 'admin') {
+                    onAdmin(); // Appelle une fonction spéciale pour les admins
+                    return;
+                }
+
                 response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
